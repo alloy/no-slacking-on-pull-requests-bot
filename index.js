@@ -1,4 +1,5 @@
 var Botkit = require('botkit')
+var request = require('superagent');
 
 var token = process.env.SLACK_TOKEN
 
@@ -71,6 +72,69 @@ controller.hears(['attachment'], ['direct_message', 'direct_mention'], function 
     console.log(err, resp)
   })
 })
+
+/* --------- */
+
+// controller.on('slash_command', function(bot, message) {
+
+// });
+
+function mapPullRequests(pullRequests) {
+  return pullRequests.map(function (pullRequest) {
+    return {
+      url: pullRequest.html_url,
+      createdAt: pullRequest.created_at,
+      title: pullRequest.title,
+      repo: pullRequest.repository.name,
+      number: pullRequest.number,
+    };
+  });
+}
+
+function fetchPullRequests(token, callback, pullRequests = [], page = 1) {
+  console.log('Request page ' + page);
+  request
+    .get('https://api.github.com/orgs/artsy/issues')
+    .query({ state: 'open', filter: 'assigned', page: page })
+    .set('Authorization', 'token ' + token)
+    .accept('json')
+    .catch(function(error) { console.log('ERROR: ' + error); })
+    .then(function(response) {
+      pullRequests = pullRequests.concat(response.body.filter(function (issue) { return issue.pull_request; }));
+      var link = response.header.link;
+      if (link && link.includes('rel="last"')) {
+        fetchPullRequests(token, callback, pullRequests, page + 1)
+      } else {
+        callback(pullRequests);
+      }
+    });
+}
+
+controller.hears('register', ['direct_message'], function(bot, message) {
+  var matches = message.text.match(/^register ([a-z0-9-]{0,38}) ([a-z0-9]+)/i);
+  if (matches) {
+    // var username = matches[1];
+    var token = matches[2];
+    fetchPullRequests(token, function (pullRequests) {
+      var attachments = mapPullRequests(pullRequests).map(function (pullRequest) {
+        return {
+          title: pullRequest.repo + '#' + pullRequest.number + ': ' + pullRequest.title,
+          title_link: pullRequest.url,
+        };
+      });
+      bot.reply(message, { attachments: attachments });
+    });
+  } else {
+    bot.reply(message, 'Usage: `register github-handle access-token`');
+  }
+});
+
+
+
+
+
+
+
 
 controller.hears('.*', ['direct_message', 'direct_mention'], function (bot, message) {
   bot.reply(message, 'Sorry <@' + message.user + '>, I don\'t understand. \n')
