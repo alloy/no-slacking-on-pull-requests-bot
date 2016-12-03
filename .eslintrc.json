@@ -22,6 +22,7 @@
     }],
     "space-before-function-paren": ["error", "never"],
     "quotes": [1, "double", "avoid-escape"],
+    "comma-dangle": ["error", "always-multiline"],
     "flowtype/define-flow-type": 1,
     "flowtype/require-parameter-type": [1, { "excludeArrowFunctions": true }],
     "flowtype/require-return-type": [ 0,"always", { "annotateUndefined": "never" } ],
