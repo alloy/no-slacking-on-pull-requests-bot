@@ -6,7 +6,7 @@ var token = process.env.SLACK_TOKEN
 var controller = Botkit.slackbot({
   // reconnect to Slack RTM when connection goes bad
   retry: Infinity,
-  debug: false
+  debug: false,
 })
 
 var Bot = null
@@ -16,7 +16,7 @@ if (token) {
   console.log("Starting in single-team mode")
   controller.spawn({
     token: token,
-    retry: Infinity
+    retry: Infinity,
   }).startRTM((err, bot, payload) => {
     if (err) {
       throw new Error(err)
@@ -65,11 +65,11 @@ controller.hears(["attachment"], ["direct_message", "direct_mention"], (bot, mes
     image_url: "https://storage.googleapis.com/beepboophq/_assets/bot-1.22f6fb.png",
     title_link: "https://beepboophq.com/",
     text: text,
-    color: "#7CD197"
+    color: "#7CD197",
   }]
 
   bot.reply(message, {
-    attachments: attachments
+    attachments: attachments,
   }, (err, resp) => {
     console.log(err, resp)
   })
