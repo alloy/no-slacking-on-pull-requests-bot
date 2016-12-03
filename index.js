@@ -9,6 +9,8 @@ var controller = Botkit.slackbot({
   debug: false
 })
 
+var Bot = null;
+
 // Assume single team mode if we have a SLACK_TOKEN
 if (token) {
   console.log('Starting in single-team mode')
@@ -19,7 +21,7 @@ if (token) {
     if (err) {
       throw new Error(err)
     }
-
+    Bot = bot;
     console.log('Connected to Slack RTM')
   })
 // Otherwise assume multi-team mode - setup beep boop resourcer connection
@@ -75,9 +77,8 @@ controller.hears(['attachment'], ['direct_message', 'direct_mention'], function 
 
 /* --------- */
 
-// controller.on('slash_command', function(bot, message) {
-
-// });
+var Users = {};
+var OpenPullRequests = {};
 
 function mapPullRequests(pullRequests) {
   return pullRequests.map(function (pullRequest) {
@@ -101,7 +102,7 @@ function fetchPullRequests(token, callback, pullRequests = [], page = 1) {
     .catch(function(error) { console.log('ERROR: ' + error); })
     .then(function(response) {
       pullRequests = pullRequests.concat(response.body.filter(function (issue) { return issue.pull_request; }));
-      var link = response.header.link;
+      var link = response.header['link'];
       if (link && link.includes('rel="last"')) {
         fetchPullRequests(token, callback, pullRequests, page + 1)
       } else {
@@ -110,20 +111,37 @@ function fetchPullRequests(token, callback, pullRequests = [], page = 1) {
     });
 }
 
+// function fetchPullRequestEvents(token, username) {
+//   request
+//     .get('https://api.github.com/users/' + username + '/events/orgs/artsy')
+//     .set('Authorization', 'token ' + token)
+//     .accept('json')
+//     .catch(function(error) { console.log('ERROR: ' + error); })
+//     .then(function(response) {
+//       var etag = response.header['etag'];
+//       var interval = response.header['x-poll-interval'];
+//       var events = response.body.filter(function (event) { return event.type === 'PullRequestEvent'; });
+//       console.log(events);
+//     });
+// }
+
 controller.hears('register', ['direct_message'], function(bot, message) {
-  var matches = message.text.match(/^register ([a-z0-9-]{0,38}) ([a-z0-9]+)/i);
+  console.log(message);
+  var matches = message.text.match(/^register ([a-z0-9-]{0,38})\s*([a-z0-9]+)?/i);
   if (matches) {
-    // var username = matches[1];
-    var token = matches[2];
-    fetchPullRequests(token, function (pullRequests) {
-      var attachments = mapPullRequests(pullRequests).map(function (pullRequest) {
-        return {
-          title: pullRequest.repo + '#' + pullRequest.number + ': ' + pullRequest.title,
-          title_link: pullRequest.url,
-        };
-      });
-      bot.reply(message, { attachments: attachments });
-    });
+    var username = matches[1];
+    Users[username] = message.user;
+    console.log(Users);
+    // var token = matches[2];
+    // fetchPullRequests(token, function (pullRequests) {
+    //   var attachments = mapPullRequests(pullRequests).map(function (pullRequest) {
+    //     return {
+    //       title: pullRequest.repo + '#' + pullRequest.number + ': ' + pullRequest.title,
+    //       title_link: pullRequest.url,
+    //     };
+    //   });
+    //   bot.reply(message, { attachments: attachments });
+    // });
   } else {
     bot.reply(message, 'Usage: `register github-handle access-token`');
   }
@@ -132,10 +150,40 @@ controller.hears('register', ['direct_message'], function(bot, message) {
 
 
 
-
-
-
-
 controller.hears('.*', ['direct_message', 'direct_mention'], function (bot, message) {
   bot.reply(message, 'Sorry <@' + message.user + '>, I don\'t understand. \n')
-})
+});
+
+
+
+
+controller.setupWebserver(process.env.PORT || 3000, function(err, server) {
+  server.post('/', function (req, res) {
+    // Even though the webhook should be configured to only send PR events, GitHub will send an initial setup event.
+    if (req.headers['x-github-event'] === 'pull_request') {
+      var data = req.body;
+      console.log(data);
+      // Newly opened PRs that are assigned will also have action `assigned`.
+      if (data.action === 'assigned' || data.action === 'unassigned') {
+        var assignees = data.pull_request.assignees.map(function (assignee) { return assignee.login; });
+        var pullRequestID = data.pull_request.id;
+        var previousPullRequest = OpenPullRequests[pullRequestID];
+        var previousAssignees = (previousPullRequest && previousPullRequest.assignees) || [];
+        if (previousAssignees !== assignees) {
+          OpenPullRequests[data.pull_request.id] = { id: pullRequestID, assignees: assignees };
+          var assigned = assignees.filter(function (assignee) { return !previousAssignees.includes(assignee); });
+          assigned.forEach(function (assignee) {
+            var user = Users[assignee];
+            if (user) {
+              console.log('NOTIFY: ' + assignee);
+              Bot.startPrivateConversation({ user: user }, function(err,convo) {
+                convo.say('New PR!');
+              });
+            }
+          });
+        }
+      }
+    }
+    res.status(201).end();
+  });
+});
