@@ -77,9 +77,6 @@ controller.hears(["attachment"], ["direct_message", "direct_mention"], (bot, mes
 
 /* --------- */
 
-var Users = {}
-var OpenPullRequests = {}
-
 // function mapPullRequests(pullRequests: any[]) {
 //   return pullRequests.map((pullRequest) => {
 //     return {
@@ -134,9 +131,9 @@ controller.hears("register", ["direct_message"], (bot, message) => {
   console.log(message)
   var matches = message.text.match(/^register ([a-z0-9-]{0,38})\s*([a-z0-9]+)?/i)
   if (matches) {
-    var username = matches[1]
-    Users[username] = message.user
-    console.log(Users)
+    // var username = matches[1]
+    // Users[username] = message.user
+    // console.log(Users)
     // var token = matches[2];
     // fetchPullRequests(token, function (pullRequests) {
     //   var attachments = mapPullRequests(pullRequests).map(function (pullRequest) {
@@ -154,43 +151,4 @@ controller.hears("register", ["direct_message"], (bot, message) => {
 
 controller.hears(".*", ["direct_message", "direct_mention"], (bot, message) => {
   bot.reply(message, "Sorry <@" + message.user + ">, I don't understand. \n")
-})
-
-controller.setupWebserver(process.env.PORT || 3000, (err, server) => {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
-  server.post("/", (req, res) => {
-    // Even though the webhook should be configured to only send PR events, GitHub will send an initial setup event.
-    if (req.headers["x-github-event"] === "pull_request") {
-      var data = req.body
-      console.log(data)
-      // Newly opened PRs that are assigned will also have action `assigned`.
-      if (data.action === "assigned" || data.action === "unassigned") {
-        var assignees = data.pull_request.assignees.map((assignee) => assignee.login)
-        var pullRequestID = data.pull_request.id
-        var previousPullRequest = OpenPullRequests[pullRequestID]
-        var previousAssignees = (previousPullRequest && previousPullRequest.assignees) || []
-        if (previousAssignees !== assignees) {
-          OpenPullRequests[data.pull_request.id] = { id: pullRequestID, assignees: assignees }
-          var assigned = assignees.filter((assignee) => !previousAssignees.includes(assignee))
-          assigned.forEach((assignee) => {
-            var user = Users[assignee]
-            if (user) {
-              console.log("NOTIFY: " + assignee)
-              Bot.startPrivateConversation({ user: user }, (err, convo) => {
-                if (err) {
-                  console.error(err)
-                } else {
-                  convo.say("New PR!")
-                }
-              })
-            }
-          })
-        }
-      }
-    }
-    res.status(201).end()
-  })
 })
