@@ -1,5 +1,5 @@
 import Botkit from "botkit"
-// var request = require("superagent")
+import fetchPullRequests from "./lib/fetchPullRequests"
 
 var token = process.env.SLACK_TOKEN
 
@@ -77,73 +77,23 @@ controller.hears(["attachment"], ["direct_message", "direct_mention"], (bot, mes
 
 /* --------- */
 
-// function mapPullRequests(pullRequests: any[]) {
-//   return pullRequests.map((pullRequest) => {
-//     return {
-//       url: pullRequest.html_url,
-//       createdAt: pullRequest.created_at,
-//       title: pullRequest.title,
-//       repo: pullRequest.repository.name,
-//       number: pullRequest.number
-//     }
-//   })
-// }
-
-// function fetchPullRequests(
-//     token: string,
-//     callback: (pullRequests: any[]) => void,
-//     pullRequests: any[] = [],
-//     page: number = 1
-//   ) {
-//   console.log("Request page " + page)
-//   request
-//     .get("https://api.github.com/orgs/artsy/issues")
-//     .query({ state: "open", filter: "assigned", page: page })
-//     .set("Authorization", "token " + token)
-//     .accept("json")
-//     .catch((error) => console.log("ERROR: " + error))
-//     .then((response) => {
-//       pullRequests = pullRequests.concat(response.body.filter((issue) => issue.pull_request))
-//       var link = response.header["link"]
-//       if (link && link.includes('rel="last"')) {
-//         fetchPullRequests(token, callback, pullRequests, page + 1)
-//       } else {
-//         callback(pullRequests)
-//       }
-//     })
-// }
-
-// function fetchPullRequestEvents(token, username) {
-//   request
-//     .get('https://api.github.com/users/' + username + '/events/orgs/artsy')
-//     .set('Authorization', 'token ' + token)
-//     .accept('json')
-//     .catch(function(error) { console.log('ERROR: ' + error); })
-//     .then(function(response) {
-//       var etag = response.header['etag'];
-//       var interval = response.header['x-poll-interval'];
-//       var events = response.body.filter(function (event) { return event.type === 'PullRequestEvent'; });
-//       console.log(events);
-//     });
-// }
-
 controller.hears("register", ["direct_message"], (bot, message) => {
   console.log(message)
   var matches = message.text.match(/^register ([a-z0-9-]{0,38})\s*([a-z0-9]+)?/i)
   if (matches) {
-    // var username = matches[1]
+    var username = matches[1]
+    var token = matches[2]
     // Users[username] = message.user
     // console.log(Users)
-    // var token = matches[2];
-    // fetchPullRequests(token, function (pullRequests) {
-    //   var attachments = mapPullRequests(pullRequests).map(function (pullRequest) {
-    //     return {
-    //       title: pullRequest.repo + '#' + pullRequest.number + ': ' + pullRequest.title,
-    //       title_link: pullRequest.url,
-    //     };
-    //   });
-    //   bot.reply(message, { attachments: attachments });
-    // });
+    fetchPullRequests(token).then(pullRequests => {
+      var attachments = pullRequests.map(pullRequest => {
+        return {
+          title: `${pullRequest.repo}#${pullRequest.number}: ${pullRequest.title}`,
+          title_link: pullRequest.url,
+        }
+      })
+      bot.reply(message, { attachments: attachments })
+    })
   } else {
     bot.reply(message, "Usage: `register github-handle access-token`")
   }
