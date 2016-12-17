@@ -8,12 +8,12 @@
  *
  * Fill this stub out by replacing all the `any` types.
  *
- * Once filled out, we encourage you to share your work with the
- * community by sending a pull request to:
+ * Once filled out, we encourage you to share your work with the 
+ * community by sending a pull request to: 
  * https://github.com/flowtype/flow-typed
  */
 
-declare module "eslint-config-standard" {
+declare module 'eslint-config-standard' {
   declare module.exports: any;
 }
 
@@ -22,24 +22,24 @@ declare module "eslint-config-standard" {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
-declare module "eslint-config-standard/test/basic" {
+declare module 'eslint-config-standard/test/basic' {
   declare module.exports: any;
 }
 
-declare module "eslint-config-standard/test/validate-config" {
+declare module 'eslint-config-standard/test/validate-config' {
   declare module.exports: any;
 }
 
 // Filename aliases
-declare module "eslint-config-standard/index" {
+declare module 'eslint-config-standard/index' {
   declare module.exports: $Exports<'eslint-config-standard'>;
 }
-declare module "eslint-config-standard/index.js" {
+declare module 'eslint-config-standard/index.js' {
   declare module.exports: $Exports<'eslint-config-standard'>;
 }
-declare module "eslint-config-standard/test/basic.js" {
+declare module 'eslint-config-standard/test/basic.js' {
   declare module.exports: $Exports<'eslint-config-standard/test/basic'>;
 }
-declare module "eslint-config-standard/test/validate-config.js" {
+declare module 'eslint-config-standard/test/validate-config.js' {
   declare module.exports: $Exports<'eslint-config-standard/test/validate-config'>;
 }

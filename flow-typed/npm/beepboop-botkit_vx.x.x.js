@@ -8,12 +8,12 @@
  *
  * Fill this stub out by replacing all the `any` types.
  *
- * Once filled out, we encourage you to share your work with the
- * community by sending a pull request to:
+ * Once filled out, we encourage you to share your work with the 
+ * community by sending a pull request to: 
  * https://github.com/flowtype/flow-typed
  */
 
-declare module "beepboop-botkit" {
+declare module 'beepboop-botkit' {
   declare module.exports: any;
 }
 
@@ -22,24 +22,24 @@ declare module "beepboop-botkit" {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
-declare module "beepboop-botkit/examples/simple" {
+declare module 'beepboop-botkit/examples/simple' {
   declare module.exports: any;
 }
 
-declare module "beepboop-botkit/lib/beepboop-botkit" {
+declare module 'beepboop-botkit/lib/beepboop-botkit' {
   declare module.exports: any;
 }
 
 // Filename aliases
-declare module "beepboop-botkit/examples/simple.js" {
+declare module 'beepboop-botkit/examples/simple.js' {
   declare module.exports: $Exports<'beepboop-botkit/examples/simple'>;
 }
-declare module "beepboop-botkit/index" {
+declare module 'beepboop-botkit/index' {
   declare module.exports: $Exports<'beepboop-botkit'>;
 }
-declare module "beepboop-botkit/index.js" {
+declare module 'beepboop-botkit/index.js' {
   declare module.exports: $Exports<'beepboop-botkit'>;
 }
-declare module "beepboop-botkit/lib/beepboop-botkit.js" {
+declare module 'beepboop-botkit/lib/beepboop-botkit.js' {
   declare module.exports: $Exports<'beepboop-botkit/lib/beepboop-botkit'>;
 }
