@@ -9,31 +9,18 @@ const { NODE_ENV } = process.env
 
 const REPORT_INTERVAL = (NODE_ENV === "development" ? 60 : 3600) * 1000
 
-function sortPullRequestsByID(pullRequests: PullRequest[]): PullRequest[] {
-  return pullRequests.sort((a, b) => {
-    if (a.id > b.id) {
-      return 1
-    }
-    if (a.id < b.id) {
-      return -1
-    }
-    return 0
-  })
-}
-
 function processPullRequestsForUser(bot: any, user: User, alwaysReport: boolean) {
   fetchPullRequests(user.githubToken).then(pullRequests => {
-    const sortedPullRequests = sortPullRequestsByID(pullRequests)
-    Users.updateLastKnownPullRequestIDs(user, sortedPullRequests.map(({ id }) => id))
+    Users.updateLastKnownPullRequestIDs(user, pullRequests.map(({ id }) => id))
 
     let newPullRequests
     if (!alwaysReport) {
-      newPullRequests = sortedPullRequests.filter(pullRequest => {
+      newPullRequests = pullRequests.filter(pullRequest => {
         return !user.lastKnownPullRequestIDs.includes(pullRequest.id)
       })
     }
 
-    reportPullRequests(bot, user.slackHandle, newPullRequests || sortedPullRequests, alwaysReport)
+    reportPullRequests(bot, user.slackHandle, newPullRequests || pullRequests, alwaysReport)
   }).catch(error => {
     if (error.status === 401) {
       Users.remove(user.slackHandle)
