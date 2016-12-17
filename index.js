@@ -1,8 +1,7 @@
 import Botkit from "botkit"
 
 import Users from "./lib/users"
-import fetchPullRequests from "./lib/fetchPullRequests"
-import formatPullRequest from "./lib/formatPullRequest"
+import reportPullRequests from "./lib/reportPullRequests"
 import type { User } from "./lib/types"
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
@@ -78,9 +77,6 @@ controller.hears(["attachment"], ["direct_message", "direct_mention"], (bot, mes
 
 /* --------- */
 
-
-
-
 controller.hears("register", ["direct_message"], (bot, message) => {
   console.log(message)
   var matches = message.text.match(/^register ([a-z0-9-]{0,38})\s*([a-z0-9]+)?/i)
@@ -90,10 +86,7 @@ controller.hears("register", ["direct_message"], (bot, message) => {
       githubHandle: matches[1],
       githubToken: matches[2],
     }
-    fetchPullRequests(user.githubToken).then(pullRequests => {
-      var attachments = pullRequests.map(formatPullRequest)
-      bot.reply(message, { attachments: attachments })
-    })
+    reportPullRequests(bot, user, true)
   } else {
     bot.reply(message, "Usage: `register github-handle access-token`")
   }
