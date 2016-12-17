@@ -1,6 +1,7 @@
 import Botkit from "botkit"
 
 import Users from "./lib/users"
+import fetchPullRequests from "./lib/fetchPullRequests"
 import reportPullRequests from "./lib/reportPullRequests"
 import type { User } from "./lib/types"
 
@@ -11,7 +12,9 @@ const REPORT_INTERVAL = (NODE_ENV === "development" ? 60 : 3600) * 1000
 function reportPullRequestsToAll(bot) {
   Users.all().then(users => {
     users.forEach(user => {
-      reportPullRequests(bot, user, false)
+      fetchPullRequests(user.githubToken).then(pullRequests => {
+        reportPullRequests(bot, user.slackHandle, pullRequests, false)
+      })
     })
   })
 }
