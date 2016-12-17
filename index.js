@@ -9,14 +9,15 @@ const { NODE_ENV } = process.env
 
 const REPORT_INTERVAL = (NODE_ENV === "development" ? 60 : 3600) * 1000
 
-function reportPullRequestsToAll(bot) {
-  Users.all().then(users => {
-    users.forEach(user => {
-      fetchPullRequests(user.githubToken).then(pullRequests => {
-        reportPullRequests(bot, user.slackHandle, pullRequests, false)
-      })
-    })
+function processPullRequestsForUser(bot: any, user: User) {
+  fetchPullRequests(user.githubToken).then(pullRequests => {
+    Users.updateLastKnownPullRequests(pullRequests.map(({ id }) => id))
+    reportPullRequests(bot, user.slackHandle, pullRequests, false)
   })
+}
+
+function reportPullRequestsToAll(bot: any) {
+  Users.all().then(users => users.forEach(user => processPullRequestsForUser(bot, user)))
 }
 
 const controller = Botkit.slackbot({
@@ -55,9 +56,10 @@ controller.hears("register", ["direct_message"], (bot, message) => {
       slackHandle: message.user,
       githubHandle: matches[1],
       githubToken: matches[2],
+      lastKnownPullRequests: [],
     }
     Users.set(user)
-    reportPullRequests(bot, user, true)
+    processPullRequestsForUser(bot, user)
   } else {
     bot.reply(message, "Usage: `register github-handle access-token`")
   }
