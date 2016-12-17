@@ -2,6 +2,7 @@ import Botkit from "botkit"
 
 import Users from "./lib/users"
 import fetchPullRequests from "./lib/fetchPullRequests"
+import formatPullRequest from "./lib/formatPullRequest"
 import type { User } from "./lib/types"
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
@@ -90,12 +91,7 @@ controller.hears("register", ["direct_message"], (bot, message) => {
       githubToken: matches[2],
     }
     fetchPullRequests(user.githubToken).then(pullRequests => {
-      var attachments = pullRequests.map(pullRequest => {
-        return {
-          title: `${pullRequest.repo}#${pullRequest.number}: ${pullRequest.title}`,
-          title_link: pullRequest.url,
-        }
-      })
+      var attachments = pullRequests.map(formatPullRequest)
       bot.reply(message, { attachments: attachments })
     })
   } else {
