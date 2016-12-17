@@ -1,7 +1,10 @@
 import Botkit from "botkit"
-import fetchPullRequests from "./lib/fetchPullRequests"
 
-var token = process.env.SLACK_TOKEN
+import Users from "./lib/users"
+import fetchPullRequests from "./lib/fetchPullRequests"
+import type { User } from "./lib/types"
+
+const SLACK_TOKEN = process.env.SLACK_TOKEN
 
 var controller = Botkit.slackbot({
   // reconnect to Slack RTM when connection goes bad
@@ -9,19 +12,16 @@ var controller = Botkit.slackbot({
   debug: false,
 })
 
-var Bot = null
-
 // Assume single team mode if we have a SLACK_TOKEN
-if (token) {
+if (SLACK_TOKEN) {
   console.log("Starting in single-team mode")
   controller.spawn({
-    token: token,
+    token: SLACK_TOKEN,
     retry: Infinity,
   }).startRTM((err, bot, payload) => {
     if (err) {
       throw new Error(err)
     }
-    Bot = bot
     console.log("Connected to Slack RTM")
   })
 // Otherwise assume multi-team mode - setup beep boop resourcer connection
@@ -77,15 +77,19 @@ controller.hears(["attachment"], ["direct_message", "direct_mention"], (bot, mes
 
 /* --------- */
 
+
+
+
 controller.hears("register", ["direct_message"], (bot, message) => {
   console.log(message)
   var matches = message.text.match(/^register ([a-z0-9-]{0,38})\s*([a-z0-9]+)?/i)
   if (matches) {
-    var username = matches[1]
-    var token = matches[2]
-    // Users[username] = message.user
-    // console.log(Users)
-    fetchPullRequests(token).then(pullRequests => {
+    const user: User = {
+      slackHandle: message.user,
+      githubHandle: matches[1],
+      githubToken: matches[2],
+    }
+    fetchPullRequests(user.githubToken).then(pullRequests => {
       var attachments = pullRequests.map(pullRequest => {
         return {
           title: `${pullRequest.repo}#${pullRequest.number}: ${pullRequest.title}`,
