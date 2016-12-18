@@ -3,7 +3,7 @@ import Botkit from "botkit"
 import Users from "./lib/users"
 import fetchPullRequests from "./lib/fetchPullRequests"
 import reportPullRequests from "./lib/reportPullRequests"
-import type { PullRequest, PullRequestID, User } from "./lib/types"
+import type { User } from "./lib/types"
 
 const { NODE_ENV } = process.env
 
@@ -39,7 +39,6 @@ function processPullRequestsForUser(bot: any, user: User, alwaysReport: boolean)
 
 function reportPullRequestsToAll(bot: any) {
   Users.all().then(users => {
-    console.log(users)
     users.forEach(user => processPullRequestsForUser(bot, user, false))
   })
 }
