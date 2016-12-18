@@ -7,7 +7,7 @@
     "start": "npm run build && node ./build/index.js",
     "dev": "babel-node ./lib/index.js",
     "test": "flow && eslint .",
-    "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__' build/index.js"
+    "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__'"
   },
   "repository": {
     "type": "git",
