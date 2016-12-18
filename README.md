@@ -1,19 +1,16 @@
-# starter-node-bot
+# No Slacking on PRs!
 
-## Overview
-A simple starting point for creating a Beep Boop hostable, Node.js based Slack bot with botkit
+![](resources/avatar.png)
 
-Visit [Beep Boop](https://beepboophq.com/docs/article/overview) to get the scoop on the the Beep Boop hosting platform. The Slack API documentation can be found [here](https://api.slack.com/).
-
-## Assumptions
-* You have already signed up with [Beep Boop](https://beepboophq.com) and have a local fork of this project.
-* You have sufficient rights in your Slack team to configure a bot and generate/access a Slack API token.
+This is a Slack bot that will keep track of open GitHub pull-requests assigned to registered users on your team.
 
 ## Usage
 
 ### Run locally
-	yarn install
-	SLACK_TOKEN=<YOUR_SLACK_TOKEN> yarn start
+
+    $ npm install -g yarn
+    $ yarn install
+    $ env SLACK_TOKEN=<YOUR_SLACK_TOKEN> NODE_ENV=development yarn run dev
 
 Things are looking good if the console prints something like:
 
@@ -22,17 +19,18 @@ Things are looking good if the console prints something like:
     ** API CALL: https://slack.com/api/chat.postMessage
 
 ### Run locally in Docker
-	docker build -t starter-node .`
-	docker run --rm -it -e SLACK_TOKEN=<YOUR SLACK API TOKEN> starter-node
 
-### Run in BeepBoop
-If you have linked your local repo with the Beep Boop service (check [here](https://beepboophq.com/0_o/my-projects)), changes pushed to the remote master branch will automatically deploy.
+    $ docker build -t no-slacking-on-prs .
+    $ docker run --rm -it -e SLACK_TOKEN=<YOUR SLACK API TOKEN> no-slacking-on-prs
 
-## Acknowledgements
+_NOTE_: Because in this environment the BeepBoop key-value store is not available, nor write access to the file-system,
+the users database will be an in-memory one.
 
-This code uses the [botkit](https://github.com/howdyai/botkit) npm module by the fine folks at Howdy.ai.
+If you need to inspect the built container, use the following command:
+
+    $ docker run --rm -it --entrypoint=/bin/bash no-slacking-on-prs
 
 ## License
 
-See the [LICENSE](LICENSE.md) file (MIT).
+See the [LICENSE](LICENSE) file (MIT).
 
