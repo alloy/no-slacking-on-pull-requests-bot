@@ -1,5 +1,5 @@
-name: nodebot
-description: A simple node.js starter bot for Beep Boop
+name: No Slacking on PRs
+description: A bot that keeps track of open PRs.
 avatar: resources/avatar.png
 #background: resources/background.png
 #config:
