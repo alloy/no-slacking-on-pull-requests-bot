@@ -7,7 +7,7 @@
     "start": "npm run build && node ./build/index.js",
     "dev": "babel-node ./lib/index.js",
     "test": "flow && eslint .",
-    "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__' && sed -i '' s/GIT_VERSION\\ =\\ null/GIT_VERSION\\ =\\ \\\"$(git rev-parse HEAD)\\\"/ build/index.js && sed -i '' s/GITHUB_REPO\\ =\\ null/GITHUB_REPO\\ =\\ \\\"$(git remote get-url origin | sed -e 's/\\//\\\\\\//g')\\\"/ build/index.js"
+    "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__' build/index.js"
   },
   "repository": {
     "type": "git",
