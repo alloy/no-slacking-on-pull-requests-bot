@@ -4,7 +4,7 @@
   "description": "A sample Beep Boop Node.js Slackbot",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node ./build/index.js",
+    "start": "node ./build/index.js",
     "dev": "babel-node ./lib/index.js",
     "test": "flow && eslint .",
     "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__'"
