@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./build/index.js",
     "dev": "babel-node ./lib/index.js",
-    "test": "flow && eslint .",
+    "test": "flow && eslint . && jest",
     "build": "babel lib -d build --ignore='lib/__mocks__,lib/__tests__'"
   },
   "repository": {

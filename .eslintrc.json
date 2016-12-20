@@ -32,11 +32,6 @@
     "flowtype/use-flow-type": 1,
     "flowtype/valid-syntax": 1
   },
-  "ignore": [
-    "distribution",
-    "app.js",
-    "flow-typed"
-  ],
   "settings": {
       "flowtype": {
           "onlyFilesWithFlowAnnotation": false
