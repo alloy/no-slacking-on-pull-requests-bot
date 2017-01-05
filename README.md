@@ -6,6 +6,8 @@ This is a Slack bot that will keep track of open GitHub pull-requests assigned t
 
 ## Usage
 
+* [Create a token](/docs/slack_token.md).
+
 ### Run locally
 
     $ npm install -g yarn
