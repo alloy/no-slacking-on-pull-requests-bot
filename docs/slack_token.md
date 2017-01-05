@@ -1,6 +1,6 @@
 ## Getting a token
 
-![](/token/png)
+![](./token.png)
 
 You need to go to:
 
